@@ -1,5 +1,3 @@
-# OBD2-reader
-
 The files of the project to be found on the branch master
 
 # OBD2-Reader
