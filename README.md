@@ -1,5 +1,3 @@
-The files of the project to be found on the branch master
-
 # OBD2-Reader
 
 A Python-based OBD-II live data logger that collects and stores real-time vehicle sensor data using an ELM327 adapter and `python-OBD`. It features a live dashboard, data storage, and web interface for monitoring engine and vehicle parameters.
