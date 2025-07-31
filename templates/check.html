@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Car Diagnostic Check</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 50px;
+            background-image: url('../static/dashboardBG.png'); /* Fundal cu imagine (la fel ca pe dashboard) */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .box {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h2 {
+            color: white;
+            font-family: 'Roboto', sans-serif;
+            font-size: 40px;
+            font-weight: 700;
+            text-align: center;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.6); /* Efect de umbră */
+            margin-bottom: 20px;
+            animation: fadeIn 1.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        p {
+            color: black;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        h4 {
+            color: black;
+            margin-top: 20px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 10px 0;
+        }
+
+        li {
+            color: red;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 12px 18px;
+            background-color: rgba(105, 105, 105, 0.8); /* Culoare buton gri semi-transparent */
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 18px;
+            width: 230px;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        a:hover {
+            background-color: rgba(169, 169, 169, 0.8); /* Culoare gri mai intensă la hover */
+            transform: scale(1.05);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        a:active {
+            transform: scale(1);
+            box-shadow: 0 6px 12px rgba(220, 220, 220, 0.2);
+        }
+    </style>
+</head>
+<body>
+<div class="box">
+    <h2>Diagnostic Result</h2>
+    <p>{{ verdict }}</p>
+
+    {% if issues %}
+    <h4>Parameters outside optimal range:</h4>
+    <ul>
+        {% for param in issues %}
+            <li>{{ param }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    <a href="/dashboard">Back to Dashboard</a>
+</div>
+</body>
+</html>

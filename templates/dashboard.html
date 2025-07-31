@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('../static/dashboardBG.png');
+            background-size: cover; 
+            background-position: center; 
+            background-repeat: no-repeat; 
+            background-attachment: fixed; 
+            padding: 50px;
+        }
+        h2 {
+            color: white;
+            font-family: 'Roboto', sans-serif;
+            font-size: 40px;
+            font-weight: 700;
+            text-align: center;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.6); /* Efect de umbră */
+            margin-top: 5px;
+            animation: fadeIn 1.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .buttons {
+            margin-bottom: 45px; 
+            text-align: center;
+        }
+        .buttons a {
+            margin-right: 15px;
+            text-decoration: none;
+            padding: 12px 18px;
+            background-color: rgba(105, 105, 105, 0.8); /* Culoare gri transparentă */
+            color: white;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 18px;
+            width: 230px;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+        .buttons a:hover {
+            background-color: rgba(169, 169, 169, 0.8); /* Culoare gri mai deschisă la hover */
+            transform: scale(1.05);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+        }
+        .buttons a:active {
+            transform: scale(1);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        canvas {
+            background-color: rgba(0, 0, 0, 0.7); /* Fundal întunecat cu transparență */
+            border: 2px solid #dcdcdc; /* Bordură gri deschis */
+            border-radius: 15px; /* Colțuri rotunjite */
+            box-shadow: 0 0 10px rgba(220, 220, 220, 0.6), 0 0 20px rgba(220, 220, 220, 0.4); /* Efect de glow gri-albicios */
+            padding: 20px;
+            width: 100% !important;
+            height: 75vh; /* Înălțimea rămâne la 75% din ecran */
+            transition: all 0.3s ease-in-out; /* Tranziție lină la hover */
+        }
+
+        canvas:hover {
+            transform: scale(1.02); /* Zoom mai mic la hover */
+            box-shadow: 0 0 20px rgba(220, 220, 220, 0.8), 0 0 40px rgba(220, 220, 220, 0.5); /* Glow mai puternic și umbre mai clare */
+        }
+
+        /* Modificarea textului din canvas */
+        .chartjs-tooltip {
+            background-color: rgba(0, 0, 0, 0.0) !important; /* Background gri transparent */
+            color: white !important; /* Text alb */
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <h2>Hello, {{ username }}</h2>
+
+    <div class="buttons">
+        <a href="/extended">View Extended Data</a>
+        <a href="/check">Check your car</a>
+        <a href="/istoric">View History</a>
+        <a href="/logout">Logout</a>
+        <a href="/lambda_chart">Lambda Panel</a>
+    </div>
+
+    <canvas id="dynoChart" width="1000" height="420" style="background-color: white"></canvas>
+
+    <script>
+        const ctx = document.getElementById('dynoChart').getContext('2d');
+
+        const dynoChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                datasets: [
+                    {
+                        label: 'RPM',
+                        data: [],
+                        borderColor: 'blue',
+                        backgroundColor: 'rgba(0, 0, 255, 0.1)',
+                        yAxisID: 'yRPM',
+                        tension: 0.3,
+                        pointRadius: 3,
+                        fill: false
+                    },
+                    {
+                        label: 'Torque (Nm)',
+                        data: [],
+                        borderColor: 'green',
+                        backgroundColor: 'rgba(0, 128, 0, 0.1)',
+                        yAxisID: 'yRight',
+                        tension: 0.3,
+                        pointRadius: 3,
+                        fill: false
+                    },
+                    {
+                        label: 'Power (HP)',
+                        data: [],
+                        borderColor: 'red',
+                        backgroundColor: 'rgba(255, 0, 0, 0.1)',
+                        yAxisID: 'yRight',
+                        tension: 0.3,
+                        pointRadius: 3,
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.dataset.label}: ${context.parsed.y.toFixed(2)} @ t=${context.parsed.x}s`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        type: 'linear',
+                        title: {
+                            display: true,
+                            text: 'Time (s)'
+                        },
+                        min: 0
+                    },
+                    yRPM: {
+                        type: 'linear',
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'RPM'
+                        },
+                        min: 0,
+                        max: 6500
+                    },
+                    yRight: {
+                        type: 'linear',
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Torque (Nm) / Power (HP)'
+                        },
+                        min: 0,
+                        max: 400,
+                        grid: { drawOnChartArea: false }
+                    }
+                }
+            }
+        });
+
+        let timeCounter = 0;
+        let rpmData = [];
+        let torqueData = [];
+        let powerData = [];
+
+        function updateDynoChart() {
+            fetch('/extended/data')
+                .then(res => res.json())
+                .then(data => {
+                    const last = data[data.length - 1];
+                    if (!last) return;
+
+                    const rpm = last[1];
+                    const torque = last[3];
+                    if (rpm && torque) {
+                        const hp1 = (rpm * torque) / 9550; //in KW
+                        const hp = hp1 * 1.34102209; //in HP
+
+                        rpmData.push({ x: timeCounter, y: parseFloat(rpm.toFixed(0)) });
+                        torqueData.push({ x: timeCounter, y: parseFloat(torque.toFixed(2)) });
+                        powerData.push({ x: timeCounter, y: parseFloat(hp.toFixed(2)) });
+
+                        dynoChart.data.datasets[0].data = rpmData;
+                        dynoChart.data.datasets[1].data = torqueData;
+                        dynoChart.data.datasets[2].data = powerData;
+                        dynoChart.update();
+
+                        timeCounter++;
+                    }
+                });
+        }
+
+        setInterval(updateDynoChart, 1000);
+        window.onload = updateDynoChart;
+    </script>
+</body>
+</html>
