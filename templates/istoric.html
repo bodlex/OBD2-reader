@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Vehicle Data History</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-image: url('../static/dashboardBG.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            padding: 40px;
+        }
+
+        h2 {
+            color: white;
+            text-align: center;
+            font-size: 36px;
+            text-shadow: 2px 2px 4px #000;
+        }
+
+        .buttons {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .buttons a {
+            margin: 10px;
+            padding: 12px 20px;
+            background-color: #444;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+        }
+
+        #applyFiltersBtn {
+            display: block;
+            margin: 20px auto 10px auto;
+            padding: 10px 20px;
+            background-color: #444;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 10px;
+            border-collapse: collapse;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #ccc;
+        }
+
+        th {
+            background-color: #e2e2e2;
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f5f5f5;
+        }
+
+        tr:nth-child(odd) {
+            background-color: #ffffff;
+        }
+
+        .filter-input {
+            width: 80px;
+            margin: 2px 0;
+            padding: 4px;
+            text-align: center;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Vehicle Data History</h2>
+    <div class="buttons">
+        <a href="/dashboard">Back to Dashboard</a>
+    </div>
+    <h3 style="text-align:center; color:white; text-shadow: 1px 1px 2px black;">
+        Vehicle VIN: {{ vin }}
+    </h3>
+
+    <!-- Apply Filters Button moved here -->
+    <button id="applyFiltersBtn">Apply Filters</button>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Timestamp</th>
+                <th>
+                    RPM<br>
+                    <input type="number" class="filter-input" id="rpmMin" placeholder="Min">
+                    <input type="number" class="filter-input" id="rpmMax" placeholder="Max">
+                </th>
+                <th>Speed (km/h)</th>
+                <th>Torque (Nm)</th>
+                <th>
+                    Coolant Temp (°C)<br>
+                    <input type="number" class="filter-input" id="coolMin" placeholder="Min">
+                    <input type="number" class="filter-input" id="coolMax" placeholder="Max">
+                </th>
+                <th>
+                    Intake Pressure (kPa)<br>
+                    <input type="number" class="filter-input" id="intakeMin" placeholder="Min">
+                    <input type="number" class="filter-input" id="intakeMax" placeholder="Max">
+                </th>
+                <th>
+                    Battery Voltage (V)<br>
+                    <input type="number" class="filter-input" id="voltMin" placeholder="Min">
+                    <input type="number" class="filter-input" id="voltMax" placeholder="Max">
+                </th>
+                <th>
+                    Fuel Consumption (L/h)<br>
+                    <input type="number" class="filter-input" id="fuelMin" placeholder="Min" value="0">
+                    <input type="number" class="filter-input" id="fuelMax" placeholder="Max" value="60">
+                </th>
+            </tr>
+        </thead>
+        <tbody id="dataBody">
+            {% for row in data %}
+            <tr>
+                <td>{{ row[0] }}</td>
+                <td>{{ row[1] if row[1] is not none else 'N/A' }}</td>
+                <td>{{ row[2] if row[2] is not none else 'N/A' }}</td>
+                <td>{{ row[3] if row[3] is not none else 'N/A' }}</td>
+                <td>{{ row[4] if row[4] is not none else 'N/A' }}</td>
+                <td>{{ row[5] if row[5] is not none else 'N/A' }}</td>
+                <td>{{ row[6] if row[6] is not none else 'N/A' }}</td>
+                <td>{{ row[7] if row[7] is not none else 'N/A' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+        const rows = Array.from(document.querySelectorAll("#dataBody tr"));
+        const rpmValues = rows.map(r => parseFloat(r.cells[1].innerText) || 0);
+        const coolValues = rows.map(r => parseFloat(r.cells[4].innerText) || 0);
+        const intakeValues = rows.map(r => parseFloat(r.cells[5].innerText) || 0);
+        const voltValues = rows.map(r => parseFloat(r.cells[6].innerText) || 0);
+        const fuelValues = rows.map(r => parseFloat(r.cells[7].innerText) || 0);
+
+        function filterTable() {
+            const rpmMin = parseFloat(document.getElementById("rpmMin").value) || -Infinity;
+            const rpmMax = parseFloat(document.getElementById("rpmMax").value) || Infinity;
+            const coolMin = parseFloat(document.getElementById("coolMin").value) || -Infinity;
+            const coolMax = parseFloat(document.getElementById("coolMax").value) || Infinity;
+            const intakeMin = parseFloat(document.getElementById("intakeMin").value) || -Infinity;
+            const intakeMax = parseFloat(document.getElementById("intakeMax").value) || Infinity;
+            const voltMin = parseFloat(document.getElementById("voltMin").value) || -Infinity;
+            const voltMax = parseFloat(document.getElementById("voltMax").value) || Infinity;
+            const fuelMin = parseFloat(document.getElementById("fuelMin").value) || -Infinity;
+            const fuelMax = parseFloat(document.getElementById("fuelMax").value) || Infinity;
+
+            for (let i = 0; i < rows.length; i++) {
+                const show = (
+                    rpmValues[i] >= rpmMin && rpmValues[i] <= rpmMax &&
+                    coolValues[i] >= coolMin && coolValues[i] <= coolMax &&
+                    intakeValues[i] >= intakeMin && intakeValues[i] <= intakeMax &&
+                    voltValues[i] >= voltMin && voltValues[i] <= voltMax &&
+                    fuelValues[i] >= fuelMin && fuelValues[i] <= fuelMax
+                );
+                rows[i].style.display = show ? "" : "none";
+            }
+        }
+
+        document.getElementById("applyFiltersBtn").addEventListener("click", filterTable);
+    </script>
+</body>
+</html>

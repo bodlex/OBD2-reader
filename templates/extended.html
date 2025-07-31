@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Extended OBD2 Data</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 50px;
+            background-image: url('../static/dashboardBG.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+
+        h2 {
+            color: white;
+            text-align: center;
+            font-size: 40px;
+            text-shadow: 2px 2px 5px #000;
+        }
+
+        .buttons {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .buttons a {
+            margin: 10px;
+            padding: 12px 20px;
+            background-color: #444;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 30px;
+            border-collapse: collapse;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #ddd;
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:nth-child(odd) {
+            background-color: #eee;
+        }
+    </style>
+</head>
+<body>
+    <h2>Extended OBD2 Data</h2>
+    <div class="buttons">
+        <a href="/dashboard">Back to Dashboard</a>
+        <a href="/logout">Logout</a>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Timestamp</th>
+                <th>RPM</th>
+                <th>Speed (km/h)</th>
+                <th>Torque (Nm)</th>
+                <th>Coolant Temp (°C)</th>
+                <th>Intake Pressure (kPa)</th>
+                <th>Battery Voltage (V)</th>
+                <th>Fuel Consumption (L/h)</th>
+            </tr>
+        </thead>
+        <tbody id="obd-data"></tbody>
+    </table>
+
+    <script>
+        function loadData() {
+            fetch('/extended/data')
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.getElementById("obd-data");
+                    tbody.innerHTML = "";
+                    data.forEach(row => {
+                        const tr = document.createElement("tr");
+                        tr.innerHTML = `
+                            <td>${row[0]}</td>
+                            <td>${row[1] ?? 'N/A'}</td>
+                            <td>${row[2] ?? 'N/A'}</td>
+                            <td>${row[3] ?? 'N/A'}</td>
+                            <td>${row[4] ?? 'N/A'}</td>
+                            <td>${row[5] ?? 'N/A'}</td>
+                            <td>${row[6]?.toFixed(2) ?? 'N/A'}</td>
+                            <td>${row[7]?.toFixed(2) ?? 'N/A'}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                });
+        }
+
+        setInterval(loadData, 1000);
+        window.onload = loadData;
+    </script>
+</body>
+</html>

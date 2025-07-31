@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Lambda Monitor</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('../static/dashboardBG.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            padding: 50px;
+        }
+
+        h2 {
+            color: white;
+            font-size: 40px;
+            text-align: center;
+            text-shadow: 2px 2px 6px black;
+        }
+
+        .buttons {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .buttons a {
+            margin: 0 10px;
+            text-decoration: none;
+            padding: 12px 20px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        canvas {
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 12px;
+            padding: 10px;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+            height: 75vh;
+            width: 100%;
+        }
+
+        .legend {
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 16px;
+            box-shadow: 0 0 10px rgba(255,255,255,0.2);
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .legend h3 {
+            margin-top: 0;
+            font-size: 20px;
+            color: #f0e68c;
+        }
+
+        .legend ul {
+            padding-left: 20px;
+        }
+
+        .legend li {
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Hello, {{ username }}</h2>
+
+    <div class="buttons">
+        <a href="/dashboard">Back to Dashboard</a>
+        <a href="/logout">Logout</a>
+    </div>
+
+    <canvas id="lambdaChart" style="background-color: white"></canvas>
+
+    <div class="legend">
+        <h3>Interpretare Tensiune Senzor Lambda 1 WR</h3>
+        <ul>
+            <li><strong>Sub 1.5V:</strong> Amestec <em>sărac</em> – risc de detonație, temperatură mare în cilindri, crește NOx</li>
+            <li><strong>Peste 2V:</strong> Amestec <em>bogat</em> – ardere incompletă, crește CO și HC</li>
+            <li><strong>Ideal (1.40V - 1.95V):</strong> Combustie eficientă (λ ≈ 1)</li>
+        </ul>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('lambdaChart').getContext('2d');
+
+        const lambdaChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                datasets: [
+                    {
+                        label: 'Lambda Sensor 1 WR',
+                        data: [],
+                        borderColor: 'lime',
+                        backgroundColor: 'rgba(0,255,0,0.2)',
+                        yAxisID: 'y',
+                        tension: 0.3,
+                        pointRadius: 2,
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    x: {
+                        type: 'linear',
+                        title: {
+                            display: true,
+                            text: 'Time (s)'
+                        }
+                    },
+                    y: {
+                        type: 'linear',
+                        min: 0,
+                        max: 3,
+                        title: {
+                            display: true,
+                            text: 'Tensiune WR (V)'
+                        }
+                    }
+                }
+            }
+        });
+
+        let t = 0;
+        function updateChart() {
+            fetch('/lambda_data')
+                .then(res => res.json())
+                .then(data => {
+                    const last = data[data.length - 1];
+                    if (!last) return;
+
+                    const lambda1 = last[1];
+
+                    lambdaChart.data.datasets[0].data.push({ x: t, y: lambda1 });
+
+                    lambdaChart.update();
+                    t++;
+                });
+        }
+
+        setInterval(updateChart, 500);
+        window.onload = updateChart;
+    </script>
+</body>
+</html>
