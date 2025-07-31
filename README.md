@@ -29,11 +29,8 @@ Install required libraries:
 
 ```bash
 pip install -r requirements.txt
-
-# OBD2 Reader Project
-
-## 📦 Project Structure
-
+```
+## Project Structure
 ```
 licenta/
 ├── static/
@@ -52,7 +49,6 @@ licenta/
 ├── main.py (main application file)
 └── obd_data.db (SQLite database)
 ```
-
 ## Getting Started
 
 ### 1. Connect Your ELM327 Adapter
@@ -100,10 +96,6 @@ You can query or export the data using Python or any SQLite browser.
 * Ensure your ELM327 is compatible and fully plugged in
 * Double-check serial port name and permissions
 * Use `obd.scan_serial()` in a Python shell to find available ports
-
-## License
-
-This project is licensed under the MIT License.
 
 ## Credits
 
