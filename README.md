@@ -105,5 +105,3 @@ Uses python-OBD
 Feel free to open an issue or contribute via pull requests.
 
 ---
-
-Let me know if you'd like me to customize this further — for example, if you want Docker support, screenshots, or additional features!
